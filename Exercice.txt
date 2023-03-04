@@ -1,0 +1,266 @@
+
+My Courses
+Calendar
+Leaderboard
+Slack
+Blog
+Learn More
+Full Stack Python
+Full Stack JavaScript
+Summer Camp
+About DI
+Home page
+Our Courses
+Dates & Tuition
+Blog
+Terms & Conditions
+Privacy
+ Full Stack Coding Bootcamp - PHP - Angular - Full Time - 2023 Angular Intermediate Spring Boot 2 & Spring WebFlux Exercises XP Ninja
+Exercises XP Ninja
+Last updated : January 17th 2023
+
+
+What We Will Learn:
+Airline Client Web Service
+
+
+🌟 Exercise 1 : Airline Client Web Service
+Instructions
+In this project, you begin exploring how to build a full-stack application and how to expose an endpoint by Spring Boot and use Angular to consume it and show the data.
+
+First create an Angular application with mock data
+Create spring boot rest application, which will provide api
+Finally integrate api with Angular application
+
+
+Flight Model
+Since Angular application will fetch from and persist Flight entities in the database, let’s implement a simple domain model flight with TypeScript.
+
+Open a terminal console and create a model directory and then and within that directory, issue the following command:
+
+ng generate class flight
+Create a flight Model, for example:
+
+export interface Flight {
+  flightNumber: string;
+  origin: string;
+  destination: string;
+}
+
+
+Flight Service
+Create a flight service
+
+ng generate service flight
+Create a flight service, for example:
+
+import { Injectable } from "@angular/core";
+import { Flight } from "../model/flight";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { Observable } from "rxjs";
+
+@Injectable()
+export class FlightsService {
+  private MYFLIGHTS: Flight[] = [
+    {
+      id: 11,
+      flightNumber: "FS1298",
+      origin: "LAX",
+      destination: "LHR",
+      departDay: "Thursday",
+      departTime: "09:00",
+      arriveDay: "Monday",
+      arriveTime: "09:00",
+      price: 99.99,
+    },
+    {
+      id: 12,
+      flightNumber: "FS1201",
+      origin: "LAX",
+      destination: "LHR",
+      departDay: "Friday",
+      departTime: "09:00",
+      arriveDay: "Monday",
+      arriveTime: "09:00",
+      price: 99.99,
+    },
+  ];
+
+  constructor(private http: HttpClient) {}
+
+  // to test with local mock data
+  public getMyFlights(): Flight[] {
+    return this.MYFLIGHTS;
+  }
+}
+
+
+Create My Flights Component
+Create My Flights Component which will fetch data from spring boot service and display it later.
+
+ng generate component my-flights
+Update my flight template component, for example:
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Flight</th>
+      <th>From</th>
+      <th>To</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let flight of flights">
+      <td>{{flight.flightNumber}}</td>
+      <td>{{flight.origin}}</td>
+      <td>{{flight.destination}}</td>
+    </tr>
+  </tbody>
+</table>
+Update my flight component, for example:
+
+import { Component, OnInit } from "@angular/core";
+
+import { Flight } from "../model/flight";
+import { FlightsService } from "../services/flights.service";
+
+@Component({
+  selector: "app-my-flights",
+  templateUrl: "./my-flights.component.html",
+  styleUrls: ["./my-flights.component.css"],
+})
+export class MyFlightsComponent implements OnInit {
+  private flights: Flight[];
+
+  constructor(private flightService: FlightsService) {}
+
+  ngOnInit() {
+    this.flights = this.flightService.getMyFlights();
+  }
+}
+In the app-routing.module.ts, define the url for accessing this component, for example:
+
+import { NgModule } from "@angular/core";
+import { Routes, RouterModule } from "@angular/router";
+import { MyFlightsComponent } from "./my-flights/my-flights.component";
+
+const routes: Routes = [{ path: "", component: MyFlightsComponent }];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
+In app.component.html, keep the single line as below
+
+<router-outlet></router-outlet>
+Update app.module.ts to declare MyFlightsComponent, import HttpClientModule and update providers for FlightsService as below
+
+import { BrowserModule } from "@angular/platform-browser";
+import { NgModule } from "@angular/core";
+
+import { AppRoutingModule } from "./app-routing.module";
+import { AppComponent } from "./app.component";
+import { MyFlightsComponent } from "./my-flights/my-flights.component";
+import { FlightsService } from "src/app/service/flights.service";
+import { HttpClientModule } from "@angular/common/http";
+
+@NgModule({
+  declarations: [AppComponent, MyFlightsComponent],
+  imports: [BrowserModule, AppRoutingModule, HttpClientModule],
+  providers: [FlightsService],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+Go to localhost:4200 and you can see the following output with mock data
+
+
+
+Creating A Simple Spring Boot Application
+Create a simple Spring Boot Application to expose a REST endpoint to return a mocking the list of entities.
+
+Go to Spring on official site (https://start.spring.io/).
+
+Select Maven project, add dependencies
+
+Click on Generate the project Button.
+
+Save and extract the project.
+
+Open IDE and import the project and click on browse and select the extracted project folder where pom.xml resides.
+
+Once project gets imported, follow below steps to create controller.
+
+Generate Main Class as given below with SpringBootApplication annotation.
+
+Create Model Class Flight
+
+Create a RestController
+
+Start the application by using command mvn spring-boot:run or start the application by running main() method from the main class (EmpTaskApplication.java). It will start the embedded tomcat server on port 8080.
+
+
+
+Service API Integration With Angular :
+Both Angular and Spring Boot projects are ready, lets integrate them together:
+
+Consume the service api from angular service using the Angular HTTPClient for calling the Spring Boot API to fetch the data.
+
+Create a new method in our flights.service.ts which makes call to the spring boot application using the defined httpClient.
+
+// to test with service api
+  public getFlightsData() : Observable<Flight[]>{
+    let url = "http://localhost:8080/flights";
+    return this.http.get<Flight[]>(url);
+  }
+Consume Service from component
+
+Add one more method to invoke the http call by subscribing to it
+
+// get the data from backend service api
+  private getFlightsData() {
+    this.flightService.getFlightsData().subscribe(data => {
+      this.flights = data;
+    });
+  }
+
+
+Running The Application End To End :
+Run the application, as both spring boot and Angular application is running, go to localhost:4200, you will see the integrated output in the browser
+
+
+
+Submit Your Exercises :
+Don’t forget to push to Github
+
+More Info
+Duration (approx)
+1 hour
+
+
+One Last Thing: Good luck!
+
+
+
+
+Feedback
+Tell us what you thought about the chapter: Exercises XP Ninja
+
+
+© 2020 Developers Institute. All Rights Reserved.
+
+ 
+ 
+ 
+Spring Boot 2 & Spring WebFlux
+0% Complete
+Course Notes
+Exercises
+Exercises XP
+5 XP XP  
+Exercises XP Gold
+8 XP XP Gold 
+Exercises XP Ninja
+12 XP XP Ninja 
+Daily Challenge
